@@ -1,6 +1,11 @@
 src/
 bin/makeblastdb
 bin/blastp
+data/completed_genomes.txt
+data/completed_genomes/
+data/test_db/
+*.faa
+*.blastp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
