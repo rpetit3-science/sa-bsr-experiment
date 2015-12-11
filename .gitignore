@@ -3,13 +3,10 @@ bin/makeblastdb
 bin/blastp
 bin/cd-hit
 
-data/clusters
-data/completed_genomes.txt
-data/completed_genomes.faa
-data/completed_genomes/
-data/test_db/
+data/completed-genomes*
 *.faa
 *.blastp
+*.*~
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

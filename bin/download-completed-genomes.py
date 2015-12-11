@@ -16,7 +16,7 @@ if __name__ == '__main__':
     term = ('((Staphylococcus aureus[Organism]) AND "complete+genome"[Title]) '
             'NOT plasmid[Title] AND srcdb_refseq[PROP]')
     retmax = 1000
-    outdir = './data/completed_genomes'
+    outdir = './data/completed-genomes'
 
     # For different Types and Modes See The Following Link:
     # http://www.ncbi.nlm.nih.gov/books/NBK25499/table/\
@@ -36,7 +36,6 @@ if __name__ == '__main__':
     print "\tFound {0} records.\n".format(esearch["Count"])
 
     print "Downloading records..."
-
     accessions = []
     for uuid in esearch['IdList']:
         handle = Entrez.esummary(db=db, id=uuid)
@@ -44,7 +43,7 @@ if __name__ == '__main__':
         accessions.append(esummary[0]["Caption"])
 
         # CDS as AA
-        out_faa = '{0}/{1}.faa'.format(outdir, esummary[0]["Caption"])
+        out_faa = '{0}/fasta/{1}.faa'.format(outdir, esummary[0]["Caption"])
         if not os.path.isfile(out_faa):
             print '\tDownloading {0}'.format(esummary[0]["Caption"])
             efetch = Entrez.efetch(db=db, id=uuid, rettype=rettype,
@@ -67,5 +66,6 @@ if __name__ == '__main__':
         time.sleep(5)
 
     print "Outputting list of completed genomes..."
-    with open('./data/completed_genomes.txt', 'w') as fh:
+    output = '{0}/completed-genomes.txt'.format(outdir)
+    with open('./data/completed-genomes.txt', 'w') as fh:
         fh.write('\n'.join(accessions))
