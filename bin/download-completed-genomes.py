@@ -8,14 +8,25 @@
 """
 import os
 import time
+import argparse as ap
 from Bio import Entrez, SeqIO
 Entrez.email = 'robert.petit@emory.edu'
 
 if __name__ == '__main__':
+    parser = ap.ArgumentParser(
+        prog='download-completed-genomes.py', conflict_handler='resolve',
+        description="Download completed S. aurues genomes."
+    )
+
+    parser.add_argument('--retmax', default=1000, type=int, metavar="INT",
+                        help=('Maximum number of genomes to download '
+                              '(Default: 1000)'))
+
+    args = parser.parse_args()
     db = 'nuccore'
     term = ('((Staphylococcus aureus[Organism]) AND "complete+genome"[Title]) '
             'NOT plasmid[Title] AND srcdb_refseq[PROP]')
-    retmax = 1000
+    retmax = 1000 if args.retmax == 0 else args.retmax
     outdir = './data/completed-genomes'
 
     # For different Types and Modes See The Following Link:
@@ -62,8 +73,8 @@ if __name__ == '__main__':
             print '\tSkip existing {0}'.format(esummary[0]["Caption"])
 
         # Don't get office banned! (again...)
-        print '\tSleeping for 5 seconds...'
-        time.sleep(5)
+        print '\tSleeping for 2 seconds...'
+        time.sleep(2)
 
     print "Outputting list of completed genomes..."
     output = '{0}/completed-genomes.txt'.format(outdir)

@@ -11,7 +11,7 @@ def mutate_base(aa):
 if __name__ == '__main__':
     parser = ap.ArgumentParser(
         prog='alter-protein-identity.py', conflict_handler='resolve',
-        description="Reduces protein idenities, prints sequences to STDOUT."
+        description="Reduces protein identities, prints sequences to STDOUT."
     )
 
     parser.add_argument('reference', type=str, metavar="REFERENCE_FASTA",

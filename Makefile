@@ -7,7 +7,7 @@ SRC_DIR := $(TOP_DIR)/src/
 NUM_CPU ?= 1
 
 .PHONY: ${CLUSTERS}
-all: programs dl-genomes reference-bitscores
+all: programs dl-genomes reference-bitscores cat-proteins cluster-proteins
 
 programs: blast cdhit
 
@@ -55,9 +55,10 @@ cdhit: $(CDHIT_DIR)
 ###############################################################################
 #### Download Protein Sequences From Completed S. aureus Genomes
 GENOMES_DIR := $(DATA_DIR)/completed-genomes
+MAX_GENOMES ?= 0
 $(GENOMES_DIR)/completed-genomes.txt:
 	mkdir -p $(GENOMES_DIR)/fasta
-	$(BIN_DIR)/download-completed-genomes.py
+	$(BIN_DIR)/download-completed-genomes.py --retmax=$(MAX_GENOMES)
 	find $(GENOMES_DIR)/fasta -empty -type f -delete
 
 dl-genomes: $(GENOMES_DIR)/completed-genomes.txt
@@ -86,7 +87,7 @@ reference-bitscores: $(GENOMES_DIR)/reference-bitscores.txt
 ###############################################################################
 #### Create clusters, based on UniRef construction
 $(GENOMES_DIR)/completed-genomes.faa: $(GENOMES_DIR)/completed-genomes.txt
-	cat $(GENOMES_DIR)/fasta/*.faa > $(GENOMES_DIR)/completed-genomes.faa
+	cat $(GENOMES_DIR)/fasta/*.faa > $@
 
 cat-proteins: $(GENOMES_DIR)/completed-genomes.faa
 
@@ -107,7 +108,7 @@ ${CLUSTERS}: cluster-%: $(GENOMES_DIR)/completed-genomes.faa
 	$(eval BASE_PREFIX=$(GENOMES_DIR)/clusters/sa$(name)/sa$(name))
 	# Cluster proteins based on percent identity and coverage of alignment
 	$(BIN_DIR)/cd-hit -T $(NUM_CPU) -i $^ -o $(BASE_PREFIX) -c $(identity) \
-	                  -aL $(COVERAGE) -n $(word_size) -d 0 \
+	                  -aL $(COVERAGE) -n $(word_size) -d 0 -g 1\
 	                  > $(BASE_PREFIX).out 2> $(BASE_PREFIX).err
 	# Parse clstr file to a more readable format
 	$(BIN_DIR)/parse-clusters.py $(BASE_PREFIX).clstr > $(BASE_PREFIX).mappings
@@ -120,7 +121,7 @@ ${CLUSTERS}: cluster-%: $(GENOMES_DIR)/completed-genomes.faa
 	    $(GENOMES_DIR)/blast-clusters \
 	    $(NUM_CPU)
 	# Parse the results
-	${DIR}/parse-blast-results.py \
+	$(BIN_DIR)/parse-blast-results.py \
 	    $(GENOMES_DIR)/reference-bitscores.txt \
 	    $(GENOMES_DIR)/blast-clusters/sa$(name).txt \
 	    $(BASE_PREFIX).mappings \
@@ -132,4 +133,4 @@ ${CLUSTERS}: cluster-%: $(GENOMES_DIR)/completed-genomes.faa
 ###############################################################################
 #### Clean Up Everything
 clean:
-	rm -rf $(SRC_DIR) $(BIN_DIR) $(DATA_DIR)
+	rm -rf $(SRC_DIR) $(BIN_DIR)/makeblastdb $(BIN_DIR)/blastp $(BIN_DIR)/cd-hit $(DATA_DIR)

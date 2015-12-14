@@ -44,15 +44,28 @@ if __name__ == '__main__':
             clusters[cols[0]] = cols[1]
 
     with open(args.query, 'r') as f:
+        qseqid = None
+        print('\t'.join([
+            'sseqid', 'qseqid', 'bitscore', 'evalue', 'bsr', 'slen', 'qlen',
+            'length', 'pident', 'fpident', 'member_of', 'top_hit'
+        ]))
         for line in f:
             line = line.rstrip()
             cols = line.split('\t')
 
-            # sseqid, qseqid, bitscore, evalue, bsr, pident, fpident
-            bsr = float(cols[3]) / reference_bitscores[cols[0]]
-            fpident = float(cols[8]) / int(cols[5])
+            # sseqid, qseqid, bitscore, evalue, bsr, slen, qlen, length
+            # pident, fpident
+            bsr = '{0:.4f}'.format(
+                float(cols[3]) / reference_bitscores[cols[0]]
+            )
+            fpident = '{0:.2f}'.format((float(cols[8]) / int(cols[5])) * 100)
             member_of = 'True' if clusters[cols[1]] == cols[0] else 'False'
-            print('{0}\t{1}\t{2}\t{3}\t{4:.4f}\t{5}\t{6:.2f}\t{7}'.format(
-                cols[0], cols[1], cols[3], cols[2], bsr, cols[4],
-                fpident * 100, member_of
-            ))
+
+            top_hit = 'False'
+            if qseqid != cols[1]:
+                qseqid = cols[1]
+                top_hit = 'True'
+            print('\t'.join([
+                cols[0], cols[1], cols[3], cols[2], bsr, cols[5], cols[6],
+                cols[7], cols[4], fpident, member_of, top_hit
+            ]))
