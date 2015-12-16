@@ -78,5 +78,5 @@ if __name__ == '__main__':
 
     print "Outputting list of completed genomes..."
     output = '{0}/completed-genomes.txt'.format(outdir)
-    with open('./data/completed-genomes.txt', 'w') as fh:
+    with open(output, 'w') as fh:
         fh.write('\n'.join(accessions))
