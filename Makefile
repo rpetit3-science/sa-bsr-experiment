@@ -102,7 +102,7 @@ ${CLUSTERS}: cluster-%: $(GENOMES_DIR)/completed-genomes.faa
 	    $(GENOMES_DIR)/completed-genomes.faa \
 	    $(BASE_PREFIX) \
 	    $(GENOMES_DIR)/blast-clusters \
-	    $(BLAST_HITS)
+	    $(BLAST_HITS) \
 	    $(NUM_CPU)
 	# Parse the results
 	$(BIN_DIR)/parse-blast-results.py \
