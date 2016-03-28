@@ -68,15 +68,19 @@ dl-genomes: $(GENOMES_DIR)/completed-genomes.txt
 ###############################################################################
 ###############################################################################
 #### Create clusters, based on UniRef construction
+COVERAGE ?= 0.80
 $(GENOMES_DIR)/completed-genomes.faa: $(GENOMES_DIR)/completed-genomes.txt
 	cat $(GENOMES_DIR)/fasta/*.faa > $@
 
-cat-proteins: $(GENOMES_DIR)/completed-genomes.faa
+$(GENOMES_DIR)/completed-genomes-100.faa: $(GENOMES_DIR)/completed-genomes.faa
+	# Cluster proteins based on percent identity and coverage of alignment
+	$(BIN_DIR)/cd-hit -T $(NUM_CPU) -i $^ -o $@ -c 1.00 -A 1.00 -n 5 -d 0 -g 1
 
-NAME := 50 60 70 80 90 100
-IDENTITY := 0.50 0.60 0.70 0.80 0.90 1.00
-WORD_SIZE := 3 3 5 5 5 5
-COVERAGE ?= 0.80
+cat-proteins: $(GENOMES_DIR)/completed-genomes-100.faa
+
+NAME := 50 60 70 80 90
+IDENTITY := 0.50 0.60 0.70 0.80 0.90
+WORD_SIZE := 3 3 5 5 5
 BLAST_HITS ?= 20
 
 CLUSTERS := $(addprefix cluster-, $(join $(NAME), $(join $(addprefix -, $(IDENTITY)), $(addprefix -, $(WORD_SIZE)))))
@@ -85,7 +89,7 @@ identity = $(wordlist 2, 2, $(subst -, ,$*))
 word_size = $(lastword $(subst -, ,$*))
 cluster-proteins: ${CLUSTERS}
 
-${CLUSTERS}: cluster-%: $(GENOMES_DIR)/completed-genomes.faa
+${CLUSTERS}: cluster-%: $(GENOMES_DIR)/completed-genomes-100.faa
 	@echo $@
 	mkdir -p $(GENOMES_DIR)/clusters/sa$(name)
 	$(eval BASE_PREFIX=$(GENOMES_DIR)/clusters/sa$(name)/sa$(name))
@@ -99,7 +103,7 @@ ${CLUSTERS}: cluster-%: $(GENOMES_DIR)/completed-genomes.faa
 	$(BIN_DIR)/makeblastdb -in $(BASE_PREFIX) -dbtype prot
 	# Get top X hits
 	$(BIN_DIR)/top-blast-hits.sh \
-	    $(GENOMES_DIR)/completed-genomes.faa \
+	    $^ \
 	    $(BASE_PREFIX) \
 	    $(GENOMES_DIR)/blast-clusters \
 	    $(BLAST_HITS) \

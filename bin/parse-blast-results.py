@@ -29,8 +29,8 @@ if __name__ == '__main__':
     with open(args.query, 'r') as f:
         qseqid = None
         print '\t'.join([
-            'sseqid', 'qseqid', 'bitscore', 'evalue', 'slen', 'qlen',
-            'length', 'pident', 'fpident', 'member_of', 'top_hit'
+            'sseqid', 'qseqid', 'bitscore', 'slen', 'qlen', 'member_of',
+            'top_hit'
         ])
         for line in f:
             line = line.rstrip()
@@ -38,7 +38,6 @@ if __name__ == '__main__':
 
             # sseqid, qseqid, bitscore, evalue, slen, qlen, length
             # pident, fpident
-            fpident = '{0:.2f}'.format((float(cols[8]) / int(cols[5])) * 100)
             tmp_qseqid = cols[1].split('-')[0]
             member_of = 'True' if clusters[tmp_qseqid] == cols[0] else 'False'
 
@@ -47,6 +46,5 @@ if __name__ == '__main__':
                 qseqid = cols[1]
                 top_hit = 'True'
             print '\t'.join([
-                cols[0], cols[1], cols[3], cols[2], cols[5], cols[6],
-                cols[7], cols[4], fpident, member_of, top_hit
+                cols[0], cols[1], cols[3], cols[5], cols[6], member_of, top_hit
             ])

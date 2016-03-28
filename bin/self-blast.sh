@@ -19,5 +19,5 @@ for fasta in ${FASTA_DIR}/*; do
 
     cat $fasta | parallel --gnu --plain -j ${NUM_CPU} --block ${BSIZE} --recstart '>' --pipe \
        "${DIR}/blastp -query - -db ${BLASTDB_DIR}/${BASENAME} -max_hsps 1 -max_target_seqs 1 \
-       -evalue 1000 -outfmt '6 sseqid qseqid bitscore'" > ${OUT_DIR}/${BASENAME}.txt
+       -evalue 1000 -outfmt '6 sseqid qseqid bitscore qlen slen'" >> ${OUT_DIR}/${BASENAME}.txt
 done
